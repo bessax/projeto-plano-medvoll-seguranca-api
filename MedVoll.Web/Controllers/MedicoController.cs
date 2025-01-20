@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace MedVoll.Web.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]   
+    [ApiController]
+    [Authorize]
     public class MedicoController : ControllerBase
     {
         private const string PaginaCadastro = "Formulario";

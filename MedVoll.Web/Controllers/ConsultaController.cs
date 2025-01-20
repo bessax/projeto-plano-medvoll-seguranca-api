@@ -1,6 +1,7 @@
 ﻿using MedVoll.Web.Dtos;
 using MedVoll.Web.Exceptions;
 using MedVoll.Web.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace MedVoll.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ConsultaController : ControllerBase
     {
         private readonly IConsultaService _consultaservice;
