@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\ErroController.cs" />
-    <Compile Remove="Extensions\ConfigureSwaggerExtensions.cs" />
     <Compile Remove="Models\ErrorViewModel.cs" />
   </ItemGroup>
 

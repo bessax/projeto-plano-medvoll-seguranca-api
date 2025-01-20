@@ -2,9 +2,9 @@
 
 namespace MedVoll.Web.Extensions;
 
-public static class ConfigureBasicSwaggerExtensions
+public static class ConfigureSwaggerExtensions
 {
-    public static void ConfigureSwaggerBearer(this IServiceCollection services)
+    public static void ConfigureSwagger(this IServiceCollection services)
     {
         ConfigureAppServiceSwagger(services);
     }
