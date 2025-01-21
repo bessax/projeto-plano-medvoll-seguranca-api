@@ -362,6 +362,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
+#Ignorar o aqruios de banco de dados
 vollmed.db
 vollmed.db-shm
 vollmed.db-wal
