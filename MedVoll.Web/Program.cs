@@ -40,7 +40,18 @@ builder.Services.AddScoped<IValidator<UsuarioDto>, UsuarioDtoValidator>();
 //tokenjwtservice
 builder.Services.AddScoped<TokenJWTService>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
+    opt => opt.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidAudience = builder.Configuration["JWTTokenConfiguration:Audience"],
+        ValidIssuer = builder.Configuration["JWTTokenConfiguration:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JWTKey:key"]!)),
+    });
 
 builder.Services.ConfigureSwagger();
 
