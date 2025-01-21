@@ -1,4 +1,5 @@
-﻿using MedVoll.Web.Dtos;
+﻿using FluentValidation;
+using MedVoll.Web.Dtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,17 +11,28 @@ public class AuthController:ControllerBase
 {
     private readonly UserManager<IdentityUser> userManager;
     private readonly SignInManager<IdentityUser> signInManager;
+    private readonly IValidator<UsuarioDto> validator;
 
-    public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+    public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IValidator<UsuarioDto> validator)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
+        this.validator = validator;
     }
 
     //Endpoints
     [HttpPost("registrar-usuario")]
     public async Task<IActionResult> RegistrarUsuarioAsync([FromBody] UsuarioDto usuarioDto)
     {
+        var validationResult = await validator.ValidateAsync(usuarioDto);       
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors.GroupBy(x => x.PropertyName)
+              .ToDictionary(
+                g => g.Key,
+                g => g.Select(x => x.ErrorMessage).ToArray()
+              ));
+        }
         var usuario = new IdentityUser 
         {
             UserName = usuarioDto.Email,
@@ -40,6 +52,15 @@ public class AuthController:ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync([FromBody] UsuarioDto usuarioDto)
     {
+        var validationResult = await validator.ValidateAsync(usuarioDto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors.GroupBy(x => x.PropertyName)
+              .ToDictionary(
+                g => g.Key,
+                g => g.Select(x => x.ErrorMessage).ToArray()
+              ));
+        }
         var result = await signInManager.PasswordSignInAsync(usuarioDto.Email!, usuarioDto.Senha!, isPersistent: false, lockoutOnFailure: false);
         if (!result.Succeeded)
         {

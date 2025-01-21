@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MedVoll.Web.Extensions;
+using FluentValidation;
+using MedVoll.Web.Validation;
+using MedVoll.Web.Dtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +33,9 @@ builder.Services.AddTransient<IMedicoRepository, MedicoRepository>();
 builder.Services.AddTransient<IConsultaRepository, ConsultaRepository>();
 builder.Services.AddTransient<IMedicoService, MedicoService>();
 builder.Services.AddTransient<IConsultaService, ConsultaService>();
+
+//validadores
+builder.Services.AddScoped<IValidator<UsuarioDto>, UsuarioDtoValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
     opt => opt.TokenValidationParameters = new TokenValidationParameters
