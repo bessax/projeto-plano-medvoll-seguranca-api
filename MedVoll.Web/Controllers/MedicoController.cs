@@ -15,7 +15,7 @@ namespace MedVoll.Web.Controllers
     {
         private const string PaginaCadastro = "Formulario";
         private readonly IMedicoService _service;
-        public MedicoController(SignInManager<IdentityUser> signInManager, IMedicoService service)            
+        public MedicoController(IMedicoService service)            
         {
             _service = service;
         }
