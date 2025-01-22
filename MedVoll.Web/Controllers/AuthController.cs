@@ -64,11 +64,22 @@ public class AuthController:ControllerBase
                 g => g.Select(x => x.ErrorMessage).ToArray()
               ));
         }
+        var usuario = await userManager.FindByEmailAsync(usuarioDto.Email!);
+        if (usuario is null)
+        {
+            return BadRequest("usuário não encontrado.");
+        }
+        
+        var refeshToken = tokenJWTService.GerarRefreshToken();
+        
         var result = await signInManager.PasswordSignInAsync(usuarioDto.Email!, usuarioDto.Senha!, isPersistent: false, lockoutOnFailure: false);
         if (!result.Succeeded)
         {
             return BadRequest("Falha no login do usuário.");
         }
-        return Ok(new { Mensagem = "Login realizado com sucesso!", Token = tokenJWTService.GerarTokenDeUsuario(usuarioDto) });
+        var userTokenDto = tokenJWTService.GerarTokenDeUsuario(usuarioDto);
+        userTokenDto.RefreshToken = refeshToken;
+
+        return Ok(new { Mensagem = "Login realizado com sucesso!", Token = userTokenDto });
     }
 }
