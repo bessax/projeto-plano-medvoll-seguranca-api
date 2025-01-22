@@ -12,7 +12,6 @@ using FluentValidation;
 using MedVoll.Web.Validation;
 using MedVoll.Web.Dtos;
 using MedVoll.Web.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
