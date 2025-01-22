@@ -36,6 +36,13 @@ public class AuthController:ControllerBase
                 g => g.Select(x => x.ErrorMessage).ToArray()
               ));
         }
+
+        var usuarioReg = await userManager.FindByEmailAsync(usuarioDto.Email!);
+        if (usuarioReg is null)
+        {
+            return BadRequest("Usuário já foi registrado na base de dados.");
+        }
+
         var usuario = new IdentityUser 
         {
             UserName = usuarioDto.Email,
