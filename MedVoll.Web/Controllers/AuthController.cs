@@ -2,6 +2,7 @@
 using MedVoll.Web.Dtos;
 using MedVoll.Web.Models;
 using MedVoll.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Configuration;
@@ -149,5 +150,24 @@ public class AuthController:ControllerBase
 
         //Retorna o novo token e o novo refresh token
         return Ok(new { novoToken.Token, novoRefreshToken });
+    }
+
+    [HttpPost("refresh-token/revoke/{email}")]
+    public async Task<IActionResult> RevokeTokenAsync(string email)
+    {
+        // Localiza o usuário pelo email
+        var usuario = await userManager.FindByEmailAsync(email);
+        if (usuario is null)
+        {
+            return BadRequest("Usuário não encontrado.");
+        }
+
+        // Remove o refresh token do usuário
+        usuario.RefreshToken = null;        
+
+        // Atualiza o usuário na base de dados
+        await userManager.UpdateAsync(usuario);
+
+        return NoContent(); // Retorna 204 indicando que a operação foi bem-sucedida sem resposta adicional
     }
 }
