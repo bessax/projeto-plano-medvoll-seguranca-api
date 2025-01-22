@@ -4,6 +4,7 @@ using MedVoll.Web.Models;
 using MedVoll.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Configuration;
 
 namespace MedVoll.Web.Controllers;
 
@@ -15,13 +16,14 @@ public class AuthController:ControllerBase
     private readonly SignInManager<VollMedUser> signInManager;
     private readonly IValidator<UsuarioDto> validator;
     private readonly TokenJWTService tokenJWTService;
-
-    public AuthController(UserManager<VollMedUser> userManager, SignInManager<VollMedUser> signInManager, IValidator<UsuarioDto> validator, TokenJWTService tokenJWTService)
+    private readonly IConfiguration configuration;
+    public AuthController(UserManager<VollMedUser> userManager, SignInManager<VollMedUser> signInManager, IValidator<UsuarioDto> validator, TokenJWTService tokenJWTService, IConfiguration configuration)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
         this.validator = validator;
         this.tokenJWTService = tokenJWTService;
+        this.configuration = configuration;
     }
 
     //Endpoints
@@ -77,17 +79,75 @@ public class AuthController:ControllerBase
         {
             return BadRequest("usuário não encontrado.");
         }
-        
-        var refeshToken = tokenJWTService.GerarRefreshToken();
-        
+            
+        var refreshToken = tokenJWTService.GerarRefreshToken();
+
+        //Adicionar o refresh token ao usuário
+        var expire = int.TryParse(configuration["JWTTokenConfiguration:RefreshExpireInMinutes"],
+                           out int refreshExpireInMinutes);
+        usuario.ExpireTime =
+                        DateTime.Now.AddMinutes(refreshExpireInMinutes);
+        usuario.RefreshToken = refreshToken;
+        await userManager.UpdateAsync(usuario);
+
+        //Verifica se o refresh token é válido
+        if (usuario == null || !usuario.RefreshToken!.Equals(refreshToken) || usuario.ExpireTime <= DateTime.Now)
+        {
+            return BadRequest("Refresh token expirado.");
+        }
+
         var result = await signInManager.PasswordSignInAsync(usuarioDto.Email!, usuarioDto.Senha!, isPersistent: false, lockoutOnFailure: false);
         if (!result.Succeeded)
         {
             return BadRequest("Falha no login do usuário.");
         }
         var userTokenDto = tokenJWTService.GerarTokenDeUsuario(usuarioDto);
-        userTokenDto.RefreshToken = refeshToken;
+        userTokenDto.RefreshToken = refreshToken;
 
         return Ok(new { Mensagem = "Login realizado com sucesso!", Token = userTokenDto });
+    }
+
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RecuperaRefreshToken(UsuarioTokenDto userToken)
+    {   
+        string? token = userToken.Token ?? throw new ArgumentException(nameof(userToken));
+
+        string? refreshToken = userToken.RefreshToken ?? throw new ArgumentException(nameof(userToken));
+
+        var principal = tokenJWTService.CapturaClaimsDoTokenExpirado(token);
+
+        if (principal == null)
+        {
+            return BadRequest("Token inválido/Refresh token.");
+        }
+
+        //Cria um novo usuário com as informações do principal
+        var novoUsuarioDTO = new UsuarioDto
+        {
+            Email = principal.Identity?.Name,
+            Senha = principal.Claims.FirstOrDefault(c => c.Type == "password")?.Value,            
+        };
+         
+        var vollMedUser = await userManager.FindByEmailAsync(novoUsuarioDTO.Email!);
+
+        //Verifica se o refresh token é válido
+        if (vollMedUser == null || !vollMedUser.RefreshToken!.Equals(refreshToken) || vollMedUser.ExpireTime <= DateTime.Now)
+        {
+            return BadRequest("Refresh token inválido.");
+        }
+
+        //Gera um novo token e um novo refresh token
+        var novoToken = tokenJWTService.GerarTokenDeUsuario(novoUsuarioDTO);
+        var novoRefreshToken = tokenJWTService.GerarRefreshToken();
+
+        //Atualiza o refresh token do usuário
+        vollMedUser.RefreshToken = novoRefreshToken;
+        vollMedUser.ExpireTime = DateTime.Now.AddMinutes(double.Parse(configuration["JWTTokenConfiguration:RefreshExpireInMinutes"]!));
+
+        //Atualiza o usuário
+        await userManager.UpdateAsync(vollMedUser);
+
+        //Retorna o novo token e o novo refresh token
+        return Ok(new { novoToken.Token, novoRefreshToken });
     }
 }

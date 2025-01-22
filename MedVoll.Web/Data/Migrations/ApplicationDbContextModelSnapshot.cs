@@ -103,7 +103,7 @@ namespace MedVoll.Web.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("ExpireTime")
+                    b.Property<DateTime>("ExpireTime")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedVoll.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250122152214_AdicionandoColunasRefreshTokenAspnetUser")]
+    [Migration("20250122190929_AdicionandoColunasRefreshTokenAspnetUser")]
     partial class AdicionandoColunasRefreshTokenAspnetUser
     {
         /// <inheritdoc />
@@ -106,7 +106,7 @@ namespace MedVoll.Web.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("ExpireTime")
+                    b.Property<DateTime>("ExpireTime")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
