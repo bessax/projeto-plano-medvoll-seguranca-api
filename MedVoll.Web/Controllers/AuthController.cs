@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MedVoll.Web.Dtos;
+using MedVoll.Web.Models;
 using MedVoll.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +11,12 @@ namespace MedVoll.Web.Controllers;
 [ApiController]
 public class AuthController:ControllerBase
 {
-    private readonly UserManager<IdentityUser> userManager;
-    private readonly SignInManager<IdentityUser> signInManager;
+    private readonly UserManager<VollMedUser> userManager;
+    private readonly SignInManager<VollMedUser> signInManager;
     private readonly IValidator<UsuarioDto> validator;
     private readonly TokenJWTService tokenJWTService;
 
-    public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IValidator<UsuarioDto> validator, TokenJWTService tokenJWTService)
+    public AuthController(UserManager<VollMedUser> userManager, SignInManager<VollMedUser> signInManager, IValidator<UsuarioDto> validator, TokenJWTService tokenJWTService)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
@@ -38,12 +39,12 @@ public class AuthController:ControllerBase
         }
 
         var usuarioReg = await userManager.FindByEmailAsync(usuarioDto.Email!);
-        if (usuarioReg is null)
+        if (usuarioReg is not null)
         {
             return BadRequest("Usuário já foi registrado na base de dados.");
         }
 
-        var usuario = new IdentityUser 
+        var usuario = new VollMedUser
         {
             UserName = usuarioDto.Email,
             Email = usuarioDto.Email, 
