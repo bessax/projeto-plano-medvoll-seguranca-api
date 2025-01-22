@@ -35,7 +35,7 @@ public class TokenJWTService
         //var expiracao = configuration["JWTTokenConfiguration:ExpireInMinutes"];
         //var expiracaoInMinutes = DateTime.UtcNow.AddHours(double.Parse(expiracao!));
 
-        var expiracaoInMinutes = DateTime.UtcNow.AddHours(double.Parse(configuration["JWTTokenConfiguration:ExpireInMinutes"]!));
+        var expiracaoInMinutes = DateTime.UtcNow.AddMinutes(double.Parse(configuration["JWTTokenConfiguration:ExpireInMinutes"]!));
 
         // Definimos a descrição do token.
         JwtSecurityToken? token = null;
