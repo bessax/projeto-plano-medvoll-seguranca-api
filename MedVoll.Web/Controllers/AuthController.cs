@@ -2,10 +2,8 @@
 using MedVoll.Web.Dtos;
 using MedVoll.Web.Models;
 using MedVoll.Web.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Configuration;
 
 namespace MedVoll.Web.Controllers;
 
