@@ -56,6 +56,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 builder.Services.ConfigureSwagger();
 
+builder.Services.AddAuthorization(auth => {
+    auth.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    auth.AddPolicy("User", policy => policy.RequireRole("User"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

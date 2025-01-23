@@ -22,7 +22,8 @@ namespace MedVoll.Web.Controllers
             _medicoService = medicoService;            
         }
 
-        [HttpGet("listar")]      
+        [HttpGet("listar")]
+        [Authorize(Policy = "User")]
         public async Task<IActionResult> ListarAsync([FromQuery] int page = 1)
         {
             var consultasAtivas = await _consultaservice.ListarAsync(page);        
