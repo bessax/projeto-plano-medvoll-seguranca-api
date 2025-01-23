@@ -61,6 +61,11 @@ builder.Services.AddAuthorization(auth => {
     auth.AddPolicy("User", policy => policy.RequireRole("User"));
 });
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.AddServerHeader = false;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -68,9 +73,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHsts();
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 
